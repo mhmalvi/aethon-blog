@@ -1,0 +1,10 @@
+{{ define "main" }}
+<div class="container">
+  <section class="hero" style="text-align: center; padding: var(--space-3xl) 0;">
+    <span class="hero-label fade-in">{{ i18n "error_404" }}</span>
+    <h1 class="fade-in">{{ i18n "error_title" }}</h1>
+    <p class="fade-in" style="margin-bottom: var(--space-lg);">{{ i18n "error_desc" }}</p>
+    <a href="{{ .Site.Home.RelPermalink }}" class="fade-in" style="color: var(--accent); text-decoration: underline; text-underline-offset: 3px;">&larr; {{ i18n "back_to_writing" }}</a>
+  </section>
+</div>
+{{ end }}

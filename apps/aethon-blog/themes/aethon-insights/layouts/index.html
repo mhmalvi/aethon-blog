@@ -1,0 +1,115 @@
+{{ define "main" }}
+<div class="container-wide">
+  <section class="hero">
+    <span class="hero-label reveal">{{ i18n "hero_label" }}</span>
+    <h1 class="reveal reveal-d1">{{ i18n "hero_title" | safeHTML }}</h1>
+    <p class="reveal reveal-d2">{{ .Site.Params.description }}</p>
+  </section>
+
+  {{ $posts := where .Site.RegularPages "Section" "posts" }}
+
+  <!-- Start Here: Featured Posts -->
+  {{ $startHere := where $posts ".Params.featured" true }}
+  {{ if $startHere }}
+  <section class="start-here reveal">
+    <h2>{{ i18n "start_here" | default "Start Here" }}</h2>
+    <div class="start-here-grid">
+      {{ range $startHere }}
+      <a href="{{ .Permalink }}" class="start-here-card">
+        {{ with .Params.image }}
+        <div class="start-here-thumb">
+          <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
+        </div>
+        {{ end }}
+        <div class="start-here-info">
+          {{ with .Params.categories }}{{ range first 1 . }}<span class="post-item-tag">{{ . }}</span>{{ end }}{{ end }}
+          <h3>{{ .Title }}</h3>
+          <span class="reading-time">{{ .ReadingTime }} {{ i18n "min_read" }}</span>
+        </div>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{ $featured := first 1 $posts }}
+  {{ $rest := after 1 $posts }}
+
+  <!-- Featured Post -->
+  {{ range $featured }}
+  <a href="{{ .Permalink }}" class="featured-card reveal">
+    <div class="featured-thumb{{ if .Params.image }} has-image{{ end }}" data-category="{{ with .Params.categories }}{{ index . 0 }}{{ end }}">
+      {{ if .Params.image }}
+        <img src="{{ .Params.image }}" alt="{{ .Title }}" class="thumb-img" loading="lazy">
+      {{ else }}
+      <div class="featured-thumb-inner">
+        <span class="thumb-icon">{{ with .Params.categories }}{{ $cat := index . 0 }}{{ if eq $cat "AI" }}&#9672;{{ else if eq $cat "Automation" }}&#9881;{{ else if eq $cat "Security" }}&#9670;{{ else }}&#9830;{{ end }}{{ end }}</span>
+      </div>
+      {{ end }}
+    </div>
+    <div class="featured-content">
+      <div class="featured-meta">
+        {{ with .Params.categories }}{{ range first 1 . }}<span class="post-item-tag">{{ . }}</span>{{ end }}{{ end }}
+        <span class="post-item-date">{{ .Date.Format "Jan 02, 2006" }}</span>
+        <span class="reading-time">{{ .ReadingTime }} min read</span>
+      </div>
+      <h2 class="featured-title">{{ .Title }}</h2>
+      {{ with .Description }}<p class="featured-excerpt">{{ . }}</p>{{ end }}
+      <div class="featured-author">
+        <img src="/img/aethon-icon.png" alt="{{ $.Site.Params.author }}" class="author-avatar">
+        <span>{{ $.Site.Params.author }}</span>
+      </div>
+    </div>
+  </a>
+  {{ end }}
+
+  <!-- Post List -->
+  {{ if $rest }}
+  <section class="post-list">
+    <div class="post-list-header">
+      <h2>{{ i18n "recent_writing" }}</h2>
+    </div>
+
+    {{ range $rest }}
+    <a href="{{ .Permalink }}" class="post-item reveal">
+      <div class="post-item-thumb{{ if .Params.image }} has-image{{ end }}" data-category="{{ with .Params.categories }}{{ index . 0 }}{{ end }}">
+        {{ if .Params.image }}
+          <img src="{{ .Params.image }}" alt="{{ .Title }}" class="thumb-img" loading="lazy">
+        {{ else }}
+          <span class="thumb-icon">{{ with .Params.categories }}{{ $cat := index . 0 }}{{ if eq $cat "AI" }}&#9672;{{ else if eq $cat "Automation" }}&#9881;{{ else if eq $cat "Security" }}&#9670;{{ else }}&#9830;{{ end }}{{ end }}</span>
+        {{ end }}
+      </div>
+      <div class="post-item-body">
+        <div class="post-item-meta">
+          <span class="post-item-date">{{ .Date.Format "Jan 02, 2006" }}</span>
+          {{ with .Params.categories }}
+            {{ range first 1 . }}
+              <span class="post-item-tag">{{ . }}</span>
+            {{ end }}
+          {{ end }}
+          <span class="reading-time">{{ .ReadingTime }} min</span>
+        </div>
+        <div class="post-item-title">{{ .Title }}</div>
+        {{ if .Description }}
+          <div class="post-item-excerpt">{{ .Description }}</div>
+        {{ else }}
+          <div class="post-item-excerpt">{{ .Summary | plainify | truncate 160 }}</div>
+        {{ end }}
+      </div>
+    </a>
+    {{ end }}
+  </section>
+  {{ end }}
+
+  <!-- Newsletter -->
+  <section class="newsletter homepage-newsletter reveal" aria-label="Newsletter signup">
+    <h3>{{ i18n "newsletter_title" }}</h3>
+    <p>{{ i18n "newsletter_desc" }}</p>
+    <form class="newsletter-form" id="newsletterForm">
+      <input type="email" placeholder="{{ i18n "newsletter_placeholder" }}" required aria-label="Email address">
+      <button type="submit">{{ i18n "subscribe" }}</button>
+    </form>
+    <div class="newsletter-msg" id="newsletterMsg"></div>
+  </section>
+</div>
+{{ end }}

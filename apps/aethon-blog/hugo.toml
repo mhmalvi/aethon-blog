@@ -1,0 +1,79 @@
+baseURL = 'https://insights.aethonautomation.com/'
+title = 'Aethon Insights'
+theme = 'aethon-insights'
+
+defaultContentLanguage = 'en'
+
+[params]
+  author = "Aethon Automation"
+  description = "Insights on AI, automation, and building intelligent systems."
+  mainSite = "https://aethonautomation.com"
+  email = "info@aethonautomation.com"
+  ogImage = "https://insights.aethonautomation.com/img/aethon-og.png"
+  umamiWebsiteId = "7fd8e26d-fc16-4e4c-8ee2-ad1284278dcc"
+
+[[menus.main]]
+  name = "Archive"
+  url = "/posts/"
+  weight = 1
+
+[[menus.main]]
+  name = "Solutions"
+  url = "https://aethonautomation.com/solutions"
+  weight = 2
+
+[[menus.main]]
+  name = "Case Studies"
+  url = "https://aethonautomation.com/case-studies"
+  weight = 3
+
+[[menus.main]]
+  name = "Main Site"
+  url = "https://aethonautomation.com"
+  weight = 4
+  [menus.main.params]
+    filled = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+    ordered = false
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = false
+    guessSyntax = true
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
+
+[pagination]
+  pagerSize = 10
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[related]
+  threshold = 80
+  includeNewer = true
+  toLower = false
+  [[related.indices]]
+    name = "categories"
+    weight = 100
+  [[related.indices]]
+    name = "tags"
+    weight = 80
+
+[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepQuotes = true
+
+[sitemap]
+  changeFreq = "weekly"
+  priority = 0.5

@@ -1,0 +1,99 @@
+<section class="comments" aria-label="{{ i18n "comments" | default "Comments" }}">
+  <h3>{{ i18n "comments" | default "Comments" }} <span class="comment-count" id="commentCount"></span></h3>
+
+  <form class="comment-form" id="commentForm">
+    <div class="comment-form-fields">
+      <input type="text" id="commentName" placeholder="{{ i18n "comment_name" | default "Your name" }}" maxlength="100" required>
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+    </div>
+    <textarea id="commentText" placeholder="{{ i18n "comment_placeholder" | default "Write a comment..." }}" maxlength="2000" rows="3" required></textarea>
+    <div class="comment-form-footer">
+      <span class="comment-form-hint">{{ i18n "comment_hint" | default "Be kind. No HTML." }}</span>
+      <button type="submit" class="comment-submit" id="commentSubmit">{{ i18n "comment_submit" | default "Post Comment" }}</button>
+    </div>
+    <div class="comment-form-msg" id="commentMsg"></div>
+  </form>
+
+  <div class="comment-list" id="commentList"></div>
+</section>
+
+<script>
+(function() {
+  var API_BASE = 'https://admin.insights.aethonautomation.com/api/comments';
+  var slug = {{ .File.ContentBaseName | jsonify }};
+
+  var list = document.getElementById('commentList');
+  var form = document.getElementById('commentForm');
+  var countEl = document.getElementById('commentCount');
+  var msgEl = document.getElementById('commentMsg');
+
+  function timeAgo(dateStr) {
+    var diff = Date.now() - new Date(dateStr).getTime();
+    var mins = Math.floor(diff / 60000);
+    if (mins < 1) return '{{ i18n "comment_just_now" | default "just now" }}';
+    if (mins < 60) return mins + ' {{ i18n "comment_min_ago" | default "min ago" }}';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + ' {{ i18n "comment_hr_ago" | default "hr ago" }}';
+    var days = Math.floor(hrs / 24);
+    return days + ' {{ i18n "comment_day_ago" | default "d ago" }}';
+  }
+
+  function avatar(name) {
+    var c = name.charCodeAt(0) % 6;
+    var hues = [210, 340, 120, 40, 270, 180];
+    return '<span class="comment-avatar" style="background:hsl(' + hues[c] + ',45%,55%)">' + name.charAt(0).toUpperCase() + '</span>';
+  }
+
+  function render(comments) {
+    countEl.textContent = comments.length ? '(' + comments.length + ')' : '';
+    if (!comments.length) {
+      list.innerHTML = '<p class="comment-empty">{{ i18n "comment_empty" | default "No comments yet. Be the first!" }}</p>';
+      return;
+    }
+    list.innerHTML = comments.map(function(c) {
+      return '<div class="comment">' +
+        '<div class="comment-header">' + avatar(c.name) +
+        '<div class="comment-meta"><strong class="comment-author">' + c.name + '</strong>' +
+        '<time class="comment-time">' + timeAgo(c.date) + '</time></div></div>' +
+        '<div class="comment-body">' + c.text.replace(/\n/g, '<br>') + '</div></div>';
+    }).join('');
+  }
+
+  fetch(API_BASE + '/' + slug).then(function(r) { return r.json(); }).then(render).catch(function() {
+    list.innerHTML = '';
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var nameInput = document.getElementById('commentName');
+    var textInput = document.getElementById('commentText');
+    var honeypot = form.querySelector('[name="website"]');
+    var btn = document.getElementById('commentSubmit');
+    var orig = btn.textContent;
+    btn.textContent = '...';
+    btn.disabled = true;
+    msgEl.textContent = '';
+    msgEl.className = 'comment-form-msg';
+
+    fetch(API_BASE + '/' + slug, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: nameInput.value, text: textInput.value, website: honeypot.value })
+    }).then(function(r) {
+      if (!r.ok) return r.json().then(function(d) { throw new Error(d.error); });
+      return r.json();
+    }).then(function() {
+      textInput.value = '';
+      msgEl.textContent = '{{ i18n "comment_success" | default "Comment posted!" }}';
+      msgEl.className = 'comment-form-msg success';
+      return fetch(API_BASE + '/' + slug).then(function(r) { return r.json(); }).then(render);
+    }).catch(function(err) {
+      msgEl.textContent = err.message || 'Error posting comment';
+      msgEl.className = 'comment-form-msg error';
+    }).finally(function() {
+      btn.textContent = orig;
+      btn.disabled = false;
+    });
+  });
+})();
+</script>

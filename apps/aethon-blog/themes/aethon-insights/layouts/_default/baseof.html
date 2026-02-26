@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang }}" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else if (!t && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  {{ partial "header.html" . }}
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-modal">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="{{ i18n "search_placeholder" }}" autocomplete="off">
+      </div>
+      <div class="search-results" id="searchResults"></div>
+      <div class="search-hint"><kbd>Esc</kbd> {{ i18n "search_close" }}</div>
+    </div>
+  </div>
+
+  <main id="main-content">
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "footer.html" . }}
+
+  {{ if .IsPage }}
+  <div class="reading-progress" id="reading-progress" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  {{ end }}
+
+  <script>
+    // Theme toggle
+    var themeBtn = document.querySelector('.theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+    }
+
+    // Reading progress bar
+    if (document.getElementById('reading-progress')) {
+      window.addEventListener('scroll', function() {
+        var bar = document.getElementById('reading-progress');
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var scrolled = Math.round((window.scrollY / docHeight) * 100);
+        bar.style.width = scrolled + '%';
+        bar.setAttribute('aria-valuenow', scrolled);
+      });
+    }
+
+    // Nav scroll effect
+    var header = document.querySelector('.site-header');
+    if (header) {
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+    }
+
+    // Reveal animation observer
+    var reveals = document.querySelectorAll('.reveal');
+    if (reveals.length > 0) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      reveals.forEach(function(el) { observer.observe(el); });
+    }
+
+    // Mobile menu toggle
+    var toggle = document.querySelector('.menu-toggle');
+    var nav = document.querySelector('.site-nav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', function() {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !expanded);
+        nav.classList.toggle('open');
+        toggle.classList.toggle('active');
+      });
+    }
+
+    // Newsletter form handler
+    var nlForm = document.getElementById('newsletterForm');
+    var nlMsg = document.getElementById('newsletterMsg');
+    if (nlForm) {
+      nlForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = nlForm.querySelector('button');
+        var orig = btn.textContent;
+        btn.textContent = '...';
+        btn.disabled = true;
+        var emailInput = nlForm.querySelector('input[type="email"]');
+        var data = { email: emailInput ? emailInput.value : '', source: 'aethon-insights', timestamp: new Date().toISOString() };
+        fetch('https://n8n.muhammadhmalvi.com/webhook/newsletter', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+        }).catch(function() {});
+        setTimeout(function() {
+          nlForm.style.display = 'none';
+          if (nlMsg) {
+            nlMsg.textContent = "{{ i18n "newsletter_success" }}";
+            nlMsg.style.display = 'block';
+          }
+          setTimeout(function() {
+            nlForm.style.display = '';
+            nlForm.reset();
+            btn.textContent = orig;
+            btn.disabled = false;
+            if (nlMsg) nlMsg.style.display = 'none';
+          }, 5000);
+        }, 600);
+      });
+    }
+
+    // Search with Fuse.js
+    (function() {
+      var searchToggle = document.getElementById('searchToggle');
+      var searchOverlay = document.getElementById('searchOverlay');
+      var searchInput = document.getElementById('searchInput');
+      var searchResults = document.getElementById('searchResults');
+      var fuse = null;
+      var indexLoaded = false;
+
+      function openSearch() {
+        searchOverlay.classList.add('active');
+        setTimeout(function() { searchInput.focus(); }, 100);
+        if (!indexLoaded) loadIndex();
+      }
+      function closeSearch() {
+        searchOverlay.classList.remove('active');
+        searchInput.value = '';
+        searchResults.innerHTML = '';
+      }
+
+      if (searchToggle) {
+        searchToggle.addEventListener('click', openSearch);
+      }
+      if (searchOverlay) {
+        searchOverlay.addEventListener('click', function(e) {
+          if (e.target === searchOverlay) closeSearch();
+        });
+      }
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && searchOverlay.classList.contains('active')) closeSearch();
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+      });
+
+      function loadIndex() {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js';
+        script.onload = function() {
+          fetch('/index.json').then(function(r) { return r.json(); }).then(function(data) {
+            fuse = new Fuse(data, {
+              keys: [{ name: 'title', weight: 0.4 }, { name: 'description', weight: 0.3 }, { name: 'content', weight: 0.2 }, { name: 'categories', weight: 0.1 }],
+              threshold: 0.4,
+              includeMatches: true
+            });
+            indexLoaded = true;
+            if (searchInput.value) doSearch(searchInput.value);
+          });
+        };
+        document.head.appendChild(script);
+      }
+
+      function doSearch(query) {
+        if (!fuse || !query.trim()) { searchResults.innerHTML = ''; return; }
+        var results = fuse.search(query, { limit: 8 });
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="search-no-results">{{ i18n "search_no_results" }}</div>';
+          return;
+        }
+        searchResults.innerHTML = results.map(function(r) {
+          var item = r.item;
+          return '<a href="' + item.url + '" class="search-result-item"><h4>' + item.title + '</h4><p>' + (item.description || item.content.substring(0, 120) + '...') + '</p></a>';
+        }).join('');
+      }
+
+      if (searchInput) {
+        var debounceTimer;
+        searchInput.addEventListener('input', function() {
+          clearTimeout(debounceTimer);
+          var val = this.value;
+          debounceTimer = setTimeout(function() { doSearch(val); }, 200);
+        });
+      }
+    })();
+
+    // Code copy buttons
+    document.querySelectorAll('.post-content pre').forEach(function(block) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = '{{ i18n "copy" }}';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      btn.addEventListener('click', function() {
+        var code = block.querySelector('code');
+        navigator.clipboard.writeText(code.textContent).then(function() {
+          btn.textContent = '{{ i18n "copied" }}';
+          setTimeout(function() { btn.textContent = '{{ i18n "copy" }}'; }, 2000);
+        });
+      });
+      block.style.position = 'relative';
+      block.appendChild(btn);
+    });
+  </script>
+</body>
+</html>

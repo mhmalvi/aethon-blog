@@ -1,0 +1,125 @@
+{{ define "main" }}
+<article>
+  <div class="container">
+    <header class="post-header">
+      <a href="{{ .Site.Home.RelPermalink }}" class="back-link">&larr; {{ i18n "back_to_posts" }}</a>
+
+      <div class="post-meta">
+        <span>{{ .Date.Format "January 2, 2006" }}</span>
+        <span>&middot;</span>
+        <span>{{ .ReadingTime }} {{ i18n "min_read" }}</span>
+        <span>&middot;</span>
+        <span>{{ .WordCount }} {{ i18n "words" }}</span>
+        {{ with .Params.categories }}
+          {{ range . }}
+            <span class="tag">{{ . }}</span>
+          {{ end }}
+        {{ end }}
+      </div>
+
+      <h1>{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="post-subtitle">{{ . }}</p>
+      {{ end }}
+    </header>
+
+    {{ with .Params.image }}
+    <div class="post-hero-image">
+      <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
+    </div>
+    {{ end }}
+
+    {{ if .TableOfContents }}
+    {{ if gt .WordCount 300 }}
+    <aside class="toc" aria-label="{{ i18n "contents" }}">
+      <div class="toc-title">{{ i18n "contents" }}</div>
+      <nav>
+        {{ .TableOfContents }}
+      </nav>
+    </aside>
+    {{ end }}
+    {{ end }}
+
+    {{ partial "series-nav.html" . }}
+
+    <div class="post-content">
+      {{ .Content }}
+    </div>
+
+    <div class="share-section">
+      <div class="share-label">{{ i18n "share_post" }}</div>
+      <div class="share-links">
+        <a href="https://twitter.com/intent/tweet?text={{ .Title | urlquery }}&url={{ .Permalink | urlquery }}" target="_blank" rel="noopener" aria-label="{{ i18n "share_twitter" }}">{{ i18n "share_twitter" }}</a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Permalink | urlquery }}" target="_blank" rel="noopener" aria-label="{{ i18n "share_linkedin" }}">{{ i18n "share_linkedin" }}</a>
+        <a href="mailto:?subject={{ .Title | urlquery }}&body={{ .Permalink | urlquery }}" aria-label="{{ i18n "share_email" }}">{{ i18n "share_email" }}</a>
+      </div>
+    </div>
+
+    {{ $related := .Site.RegularPages.Related . | first 3 }}
+    {{ with $related }}
+    <section class="related-posts reveal">
+      <h3>{{ i18n "related_posts" }}</h3>
+      <div class="related-grid">
+        {{ range . }}
+        <a href="{{ .Permalink }}" class="related-item">
+          {{ with .Params.image }}
+          <div class="related-thumb">
+            <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
+          </div>
+          {{ else }}
+          <div class="related-thumb related-thumb-placeholder">
+            <span>{{ substr $.Title 0 1 }}</span>
+          </div>
+          {{ end }}
+          <div class="related-info">
+            <span class="related-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+            <h4>{{ .Title }}</h4>
+          </div>
+        </a>
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+
+    <section class="continue-exploring reveal">
+      <h3>{{ i18n "continue_exploring" }}</h3>
+      <div class="explore-links">
+        <a href="{{ .Site.Params.mainSite }}/solutions" target="_blank" rel="noopener" class="explore-link">{{ i18n "explore_services" }} &rarr;</a>
+        <a href="{{ .Site.Params.mainSite }}" target="_blank" rel="noopener" class="explore-link">{{ i18n "visit_main" }} &rarr;</a>
+      </div>
+    </section>
+
+    {{ partial "comments.html" . }}
+
+    <section class="newsletter" aria-label="Newsletter signup">
+      <h3>{{ i18n "newsletter_title" }}</h3>
+      <p>{{ i18n "newsletter_desc" }}</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="{{ i18n "newsletter_placeholder" }}" required aria-label="Email address">
+        <button type="submit">{{ i18n "subscribe" }}</button>
+      </form>
+      <div class="newsletter-msg" id="newsletterMsg"></div>
+    </section>
+
+    <footer class="post-footer">
+      <nav class="post-footer-nav" aria-label="Post navigation">
+        {{ with .PrevInSection }}
+        <a href="{{ .Permalink }}">
+          <span class="label">&larr; {{ i18n "previous" }}</span>
+          {{ .Title }}
+        </a>
+        {{ else }}
+        <span></span>
+        {{ end }}
+
+        {{ with .NextInSection }}
+        <a href="{{ .Permalink }}" style="text-align: right;">
+          <span class="label">{{ i18n "next" }} &rarr;</span>
+          {{ .Title }}
+        </a>
+        {{ end }}
+      </nav>
+    </footer>
+  </div>
+</article>
+{{ end }}

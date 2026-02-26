@@ -1,0 +1,155 @@
+[hero_label]
+other = "Insights & Analysis"
+
+[hero_title]
+other = "Intelligence for the<br>modern enterprise."
+
+[recent_writing]
+other = "Recent Insights"
+
+[all_writing]
+other = "All Insights"
+
+[back_to_posts]
+other = "Back to all insights"
+
+[min_read]
+other = "min read"
+
+[words]
+other = "words"
+
+[contents]
+other = "Contents"
+
+[share_post]
+other = "Share this insight"
+
+[share_twitter]
+other = "X / Twitter"
+
+[share_linkedin]
+other = "LinkedIn"
+
+[share_email]
+other = "Email"
+
+[newsletter_title]
+other = "Stay ahead."
+
+[newsletter_desc]
+other = "Get insights on AI and automation delivered to your inbox."
+
+[newsletter_placeholder]
+other = "your@email.com"
+
+[subscribe]
+other = "Subscribe"
+
+[previous]
+other = "Previous"
+
+[next]
+other = "Next"
+
+[error_404]
+other = "404"
+
+[error_title]
+other = "Nothing here."
+
+[error_desc]
+other = "The page you're looking for doesn't exist or has been moved."
+
+[back_to_writing]
+other = "Back to all insights"
+
+[skip_to_content]
+other = "Skip to content"
+
+[toggle_menu]
+other = "Toggle menu"
+
+[copy]
+other = "Copy"
+
+[copied]
+other = "Copied!"
+
+[explore_services]
+other = "Solutions"
+
+[explore_products]
+other = "AI Products"
+
+[visit_main]
+other = "Visit aethonautomation.com"
+
+[continue_exploring]
+other = "Continue exploring"
+
+[site_links]
+other = "Site"
+
+[blog_links]
+other = "Blog"
+
+[about_link]
+other = "About"
+
+[related_posts]
+other = "Related Insights"
+
+[search]
+other = "Search"
+
+[search_placeholder]
+other = "Search insights..."
+
+[search_no_results]
+other = "No insights found."
+
+[search_close]
+other = "Close"
+
+[start_here]
+other = "Start Here"
+
+[series_label]
+other = "Series"
+
+[comments]
+other = "Comments"
+
+[comment_name]
+other = "Your name"
+
+[comment_placeholder]
+other = "Write a comment..."
+
+[comment_hint]
+other = "Be kind. No HTML."
+
+[comment_submit]
+other = "Post Comment"
+
+[comment_success]
+other = "Comment posted!"
+
+[comment_empty]
+other = "No comments yet. Be the first!"
+
+[comment_just_now]
+other = "just now"
+
+[comment_min_ago]
+other = "min ago"
+
+[comment_hr_ago]
+other = "hr ago"
+
+[comment_day_ago]
+other = "d ago"
+
+[newsletter_success]
+other = "Thanks! You're in."

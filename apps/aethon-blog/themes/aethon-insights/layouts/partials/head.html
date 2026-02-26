@@ -1,0 +1,101 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Params.author }}{{ end }}</title>
+<meta name="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="author" content="{{ .Site.Params.author }}">
+{{ if .IsPage }}<meta name="keywords" content="{{ $kw := slice }}{{ range .Params.tags }}{{ $kw = $kw | append . }}{{ end }}{{ range .Params.categories }}{{ $kw = $kw | append . }}{{ end }}{{ delimit $kw ", " }}">{{ end }}
+
+<!-- Open Graph -->
+<meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ .Site.Params.author }}">
+<meta property="og:image" content="{{ with .Params.image }}{{ $.Site.BaseURL | strings.TrimSuffix "/" }}{{ . }}{{ else }}{{ .Site.Params.ogImage }}{{ end }}">
+<meta property="og:locale" content="en_US">
+{{ if .IsPage }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="article:author" content="{{ .Site.Params.author }}">
+{{ range .Params.tags }}<meta property="article:tag" content="{{ . }}">
+{{ end }}{{ end }}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="twitter:image" content="{{ with .Params.image }}{{ $.Site.BaseURL | strings.TrimSuffix "/" }}{{ . }}{{ else }}{{ .Site.Params.ogImage }}{{ end }}">
+
+<link rel="canonical" href="{{ .Permalink }}">
+<link rel="icon" href="/img/aethon-icon.png" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/img/aethon-icon.png">
+
+<!-- Analytics -->
+{{ with .Site.Params.umamiWebsiteId }}
+<script defer src="https://analytics.muhammadhmalvi.com/script.js" data-website-id="{{ . }}"></script>
+{{ end }}
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="/css/style.css">
+
+{{ if .IsPage }}
+<!-- Schema.org Article -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ .Title }}",
+  "description": "{{ .Description }}",
+  "wordCount": {{ .WordCount }},
+  "inLanguage": "{{ .Lang }}",
+  {{ with .Params.categories }}"articleSection": "{{ index . 0 }}",{{ end }}
+  {{ with .Params.tags }}"keywords": [{{ range $i, $t := . }}{{ if $i }},{{ end }}"{{ $t }}"{{ end }}],{{ end }}
+  "author": {
+    "@type": "Organization",
+    "name": "{{ .Site.Params.author }}",
+    "url": "{{ .Site.Params.mainSite }}"
+  },
+  "datePublished": "{{ .Date.Format "2006-01-02" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02" }}",
+  "url": "{{ .Permalink }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ .Permalink }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ .Site.Params.author }}"
+  }{{ with .Params.image }},
+  "image": "{{ $.Site.BaseURL | strings.TrimSuffix "/" }}{{ . }}"{{ end }}
+}
+</script>
+{{ else if .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "{{ .Site.Title }}",
+  "description": "{{ .Site.Params.description }}",
+  "url": "{{ .Site.BaseURL }}",
+  "author": {
+    "@type": "Organization",
+    "name": "{{ .Site.Params.author }}",
+    "url": "{{ .Site.Params.mainSite }}"
+  }
+}
+</script>
+{{ end }}
+
+<!-- RSS -->
+{{ range .AlternativeOutputFormats -}}
+  {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+{{ end -}}

@@ -1,0 +1,24 @@
+{{ with .Params.series }}
+{{ $series := index . 0 }}
+{{ $currentPage := $ }}
+{{ $pages := where (where $.Site.RegularPages "Params.series" "intersect" (slice $series)) "Section" "posts" }}
+{{ if gt (len $pages) 1 }}
+<nav class="series-nav" aria-label="{{ i18n "series_label" | default "Series" }}">
+  <div class="series-nav-header">
+    <span class="series-nav-label">{{ i18n "series_label" | default "Series" }}</span>
+    <span class="series-nav-title">{{ $series }}</span>
+  </div>
+  <ol class="series-nav-list">
+    {{ range $pages.ByDate }}
+    <li{{ if eq .Permalink $currentPage.Permalink }} class="series-nav-current" aria-current="page"{{ end }}>
+      {{ if eq .Permalink $currentPage.Permalink }}
+        <span>{{ .Title }}</span>
+      {{ else }}
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ol>
+</nav>
+{{ end }}
+{{ end }}
